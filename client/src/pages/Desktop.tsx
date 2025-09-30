@@ -1,24 +1,34 @@
 import React, { useState } from "react";
+import { useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 export const Desktop = (): JSX.Element => {
   const [selectedRole, setSelectedRole] = useState<string>("student");
+  const [, setLocation] = useLocation();
 
   const roleOptions = [
     {
       id: "student",
       title: "I'm a Student",
       description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry",
+        "Submit answers and view live poll results in real-time.",
     },
     {
       id: "teacher",
       title: "I'm a Teacher",
-      description: "Submit answers and view live poll results in real-time.",
+      description: "Create polls and view live polling results from students.",
     },
   ];
+
+  const handleContinue = () => {
+    if (selectedRole === "teacher") {
+      setLocation("/teacher");
+    } else {
+      setLocation("/student");
+    }
+  };
 
   return (
     <div className="bg-white w-full min-w-[1440px] min-h-[923px] relative">
@@ -39,7 +49,9 @@ export const Desktop = (): JSX.Element => {
         </div>
       </div>
 
-      <Button className="absolute top-[598px] left-[633px] w-[234px] h-[58px] rounded-[34px] bg-[linear-gradient(159deg,rgba(143,100,225,1)_0%,rgba(29,104,189,1)_100%)] hover:bg-[linear-gradient(159deg,rgba(143,100,225,0.9)_0%,rgba(29,104,189,0.9)_100%)] text-white text-lg [font-family:'Sora',Helvetica] font-semibold px-[70px] py-[17px] h-auto">
+      <Button 
+        onClick={handleContinue}
+        className="absolute top-[598px] left-[633px] w-[234px] h-[58px] rounded-[34px] bg-[linear-gradient(159deg,rgba(143,100,225,1)_0%,rgba(29,104,189,1)_100%)] hover:bg-[linear-gradient(159deg,rgba(143,100,225,0.9)_0%,rgba(29,104,189,0.9)_100%)] text-white text-lg [font-family:'Sora',Helvetica] font-semibold px-[70px] py-[17px] h-auto">
         Continue
       </Button>
 
