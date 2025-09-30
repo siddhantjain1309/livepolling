@@ -20,6 +20,7 @@ interface Poll {
   answers: Answer[];
   isActive: boolean;
   startTime?: number;
+  correctAnswer?: string;
 }
 
 let currentPoll: Poll | null = null;
@@ -54,7 +55,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       socket.emit("poll:current", currentPoll);
     });
 
-    socket.on("teacher:create-poll", (data: { question: string; options: string[] }) => {
+    socket.on("teacher:create-poll", (data: { question: string; options: string[]; correctAnswer?: string }) => {
       const allStudentsAnswered = currentPoll 
         ? currentPoll.answers.length === students.size && students.size > 0
         : true;
@@ -69,7 +70,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           options: data.options,
           answers: [],
           isActive: true,
-          startTime: Date.now()
+          startTime: Date.now(),
+          correctAnswer: data.correctAnswer
         };
 
         io.emit("poll:new", currentPoll);

@@ -14,6 +14,7 @@ interface Poll {
   answers: Array<{ studentId: string; studentName: string; answer: string }>;
   isActive: boolean;
   startTime?: number;
+  correctAnswer?: string;
 }
 
 export default function Student() {
@@ -219,17 +220,25 @@ export default function Student() {
                   {!currentPoll.isActive && (
                     <div className="space-y-3">
                       <h3 className="text-xl font-semibold [font-family:'Sora',Helvetica]">Results</h3>
-                      {getResults().map((result, index) => (
-                        <div key={index} className="space-y-1">
-                          <div className="flex justify-between items-center">
-                            <span className="[font-family:'Sora',Helvetica]">{result.option}</span>
-                            <span className="[font-family:'Sora',Helvetica] text-sm text-gray-600">
-                              {result.count} ({result.percentage.toFixed(0)}%)
-                            </span>
+                      {getResults().map((result, index) => {
+                        const isCorrect = currentPoll.correctAnswer === result.option;
+                        return (
+                          <div key={index} className="space-y-1">
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-2">
+                                <span className="[font-family:'Sora',Helvetica]">{result.option}</span>
+                                {isCorrect && (
+                                  <span className="text-green-600 text-sm font-semibold">✓ Correct</span>
+                                )}
+                              </div>
+                              <span className="[font-family:'Sora',Helvetica] text-sm text-gray-600">
+                                {result.count} ({result.percentage.toFixed(0)}%)
+                              </span>
+                            </div>
+                            <Progress value={result.percentage} className="h-2" />
                           </div>
-                          <Progress value={result.percentage} className="h-2" />
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>

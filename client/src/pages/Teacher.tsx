@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 interface Poll {
   question: string;
@@ -12,12 +14,14 @@ interface Poll {
   answers: Array<{ studentId: string; studentName: string; answer: string }>;
   isActive: boolean;
   startTime?: number;
+  correctAnswer?: string;
 }
 
 export default function Teacher() {
   const socket = useSocket();
   const [question, setQuestion] = useState("");
   const [options, setOptions] = useState(["", "", "", ""]);
+  const [correctAnswer, setCorrectAnswer] = useState("");
   const [currentPoll, setCurrentPoll] = useState<Poll | null>(null);
   const [timeLeft, setTimeLeft] = useState(60);
   const [error, setError] = useState("");
@@ -85,9 +89,14 @@ export default function Teacher() {
     }
 
     if (socket) {
-      socket.emit("teacher:create-poll", { question, options: validOptions });
+      socket.emit("teacher:create-poll", { 
+        question, 
+        options: validOptions,
+        correctAnswer: correctAnswer || undefined
+      });
       setQuestion("");
       setOptions(["", "", "", ""]);
+      setCorrectAnswer("");
     }
   };
 
@@ -142,19 +151,35 @@ export default function Teacher() {
                 onChange={(e) => setQuestion(e.target.value)}
                 className="[font-family:'Sora',Helvetica]"
               />
-              {options.map((option, index) => (
-                <Input
-                  key={index}
-                  placeholder={`Option ${index + 1}`}
-                  value={option}
-                  onChange={(e) => {
-                    const newOptions = [...options];
-                    newOptions[index] = e.target.value;
-                    setOptions(newOptions);
-                  }}
-                  className="[font-family:'Sora',Helvetica]"
-                />
-              ))}
+              <div className="space-y-3">
+                <Label className="text-sm text-gray-600 [font-family:'Sora',Helvetica]">
+                  Mark the correct answer
+                </Label>
+                <RadioGroup value={correctAnswer} onValueChange={setCorrectAnswer}>
+                  {options.map((option, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <RadioGroupItem 
+                        value={option} 
+                        id={`correct-${index}`}
+                        disabled={!option.trim()}
+                      />
+                      <Input
+                        placeholder={`Option ${index + 1}`}
+                        value={option}
+                        onChange={(e) => {
+                          const newOptions = [...options];
+                          newOptions[index] = e.target.value;
+                          setOptions(newOptions);
+                          if (correctAnswer === option && e.target.value !== option) {
+                            setCorrectAnswer(e.target.value);
+                          }
+                        }}
+                        className="flex-1 [font-family:'Sora',Helvetica]"
+                      />
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
               <Button
                 onClick={handleCreatePoll}
                 className="w-full rounded-[34px] bg-[linear-gradient(159deg,rgba(143,100,225,1)_0%,rgba(29,104,189,1)_100%)] hover:bg-[linear-gradient(159deg,rgba(143,100,225,0.9)_0%,rgba(29,104,189,0.9)_100%)] text-white [font-family:'Sora',Helvetica] font-semibold"
@@ -184,17 +209,25 @@ export default function Teacher() {
                 </div>
 
                 <div className="space-y-3">
-                  {getResults().map((result, index) => (
-                    <div key={index} className="space-y-1">
-                      <div className="flex justify-between items-center">
-                        <span className="[font-family:'Sora',Helvetica]">{result.option}</span>
-                        <span className="[font-family:'Sora',Helvetica] text-sm text-gray-600">
-                          {result.count} ({result.percentage.toFixed(0)}%)
-                        </span>
+                  {getResults().map((result, index) => {
+                    const isCorrect = currentPoll.correctAnswer === result.option;
+                    return (
+                      <div key={index} className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            <span className="[font-family:'Sora',Helvetica]">{result.option}</span>
+                            {!currentPoll.isActive && isCorrect && (
+                              <span className="text-green-600 text-sm font-semibold">✓ Correct</span>
+                            )}
+                          </div>
+                          <span className="[font-family:'Sora',Helvetica] text-sm text-gray-600">
+                            {result.count} ({result.percentage.toFixed(0)}%)
+                          </span>
+                        </div>
+                        <Progress value={result.percentage} className="h-2" />
                       </div>
-                      <Progress value={result.percentage} className="h-2" />
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 {!currentPoll.isActive && (
