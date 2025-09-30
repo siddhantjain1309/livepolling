@@ -70,8 +70,8 @@ export const Desktop = (): JSX.Element => {
             key={role.id}
             className={`flex flex-col w-[387px] h-[143px] items-start justify-center gap-[17px] pl-[25px] pr-[17px] py-[15px] rounded-[10px] overflow-hidden cursor-pointer transition-all ${
               selectedRole === role.id
-                ? "border-[none] before:content-[''] before:absolute before:inset-0 before:p-[3px] before:rounded-[10px] before:[background:linear-gradient(150deg,rgba(119,101,218,1)_0%,rgba(29,104,189,1)_100%)] before:[-webkit-mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] before:[-webkit-mask-composite:xor] before:[mask-composite:exclude] before:z-[1] before:pointer-events-none"
-                : "border border-solid border-[#d9d9d9] hover:border-[#b0b0b0]"
+                ? "border-[3px] border-solid border-transparent [background:linear-gradient(white,white)_padding-box,linear-gradient(150deg,rgba(119,101,218,1)_0%,rgba(29,104,189,1)_100%)_border-box]"
+                : "border-[3px] border-solid border-[#d9d9d9] hover:border-[#b0b0b0]"
             }`}
             onClick={() => setSelectedRole(role.id)}
           >
